@@ -1,30 +1,42 @@
 import requests
 from bs4 import BeautifulSoup
+from datetime import datetime
 
-# URL of Times of India
-url = "https://timesofindia.indiatimes.com/news"
+# Get today's date
+today = datetime.now().strftime("%d-%m-%Y")
 
-# Send request to the website
+# Business section URL
+url = "https://timesofindia.indiatimes.com/business"
+
+# Send request
 response = requests.get(url)
 
-# Parse the HTML content
+# Parse HTML
 soup = BeautifulSoup(response.text, "html.parser")
 
-# (Your provided headlines from screenshot)
-headlines = [
-    "Bomb scare in Delhi: CRPF schools, courts receive threats",
-    "Pakistan will get two apex courts. How it could impact judicial independence",
-    "Woman drugged, gang-raped by 4; then raped again by 2 UP cops",
-    "‘I'd be proud to do it’: Trump open to strikes inside Mexico"
-]
+# Collect headlines from multiple patterns
+headlines = []
 
-print("\n==============================")
-print("      Times of India News")
-print("==============================\n")
+# Pattern 1
+headlines += [h.get_text().strip() for h in soup.find_all("span", class_="w_tle")]
 
-# Print each headline
+# Pattern 2 (backup)
+headlines += [h.get_text().strip() for h in soup.find_all("h2")]
+
+# Clean duplicates and empty text
+cleaned = []
 for h in headlines:
-    print("• " + h)
+    if h not in cleaned and len(h) > 5:
+        cleaned.append(h)
+
+# Print date
+print(f"\nTop Times of India Business Headlines ({today})\n")
+
+# Show first 12 headlines
+for index, headline in enumerate(cleaned[:12], start=1):
+    print(f"{index}. {headline}")
+
+
 
 
 
